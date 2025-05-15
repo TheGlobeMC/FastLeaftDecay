@@ -13,14 +13,21 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+/**
+ * FastLeafDecay is a Folia-compatible plugin that causes leaf blocks to decay quickly
+ * when a connected log is broken. It supports all vanilla overworld tree types and adds
+ * particle/sound effects during decay.
+ */
 public final class Main extends JavaPlugin implements Listener {
 
+    // Tree logs that trigger decay when broken
     private final Set<Material> logMaterials = Set.of(
             Material.OAK_LOG, Material.SPRUCE_LOG, Material.BIRCH_LOG, Material.JUNGLE_LOG,
             Material.ACACIA_LOG, Material.DARK_OAK_LOG, Material.MANGROVE_LOG,
             Material.CHERRY_LOG, Material.BAMBOO_BLOCK
     );
 
+    // Leaves that can decay
     private final Set<Material> leafMaterials = Set.of(
             Material.OAK_LEAVES, Material.SPRUCE_LEAVES, Material.BIRCH_LEAVES, Material.JUNGLE_LEAVES,
             Material.ACACIA_LEAVES, Material.DARK_OAK_LEAVES, Material.MANGROVE_LEAVES,
@@ -35,14 +42,26 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
     }
 
+    /**
+     * Listens for log blocks being broken and starts asynchronous decay logic.
+     *
+     * @param event The block break event.
+     */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
         if (!logMaterials.contains(block.getType())) return;
 
+        // Start delayed decay using Folia's RegionScheduler
         getServer().getRegionScheduler().runDelayed(this, block.getLocation(), task -> decayLeavesAroundAsync(block), DECAY_DELAY_TICKS);
     }
 
+    /**
+     * Performs asynchronous leaf decay in a region-aware way using Folia's scheduler.
+     * Spreads decay gradually over nearby leaves, giving a visual wave effect.
+     *
+     * @param startBlock The original log block that was broken.
+     */
     private void decayLeavesAroundAsync(Block startBlock) {
         Set<Location> checked = new HashSet<>();
         Set<Block> toCheck = new HashSet<>();
@@ -50,6 +69,7 @@ public final class Main extends JavaPlugin implements Listener {
 
         int decayDelay = 1;  // Delay in ticks between each leaf decay (tweak as necessary)
 
+        // BFS-like search for leaves in the area
         while (!toCheck.isEmpty() && checked.size() < MAX_DECAY_BLOCKS) {
             Block current = toCheck.iterator().next();
             toCheck.remove(current);
@@ -78,7 +98,7 @@ public final class Main extends JavaPlugin implements Listener {
 
             }
 
-            // Add the neighbors to check
+            // Add adjacent blocks for checking (non-diagonal only)
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 1; dy++) {
                     for (int dz = -1; dz <= 1; dz++) {
@@ -94,6 +114,12 @@ public final class Main extends JavaPlugin implements Listener {
         }
     }
 
+    /**
+     * Checks if the given leaf block is adjacent to any log block.
+     *
+     * @param leafBlock The leaf block to check.
+     * @return true if attached to a log; false if isolated.
+     */
     private boolean isLeafAttachedToLog(Block leafBlock) {
         // Check the neighboring blocks to see if any are logs
         for (int dx = -1; dx <= 1; dx++) {
@@ -111,6 +137,14 @@ public final class Main extends JavaPlugin implements Listener {
         return false; // No log blocks found nearby, the leaf can decay
     }
 
+    /**
+     * Generates a random float between min (inclusive) and max (inclusive).
+     *
+     * @param min Minimum value.
+     * @param max Maximum value.
+     * @return A float between min and max.
+     * @throws IllegalArgumentException if min > max.
+     */
     public static float randomNumber(float min, float max) {
         final Random random = new Random();
         if (min > max) {
