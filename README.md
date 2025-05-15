@@ -1,5 +1,6 @@
 # 🌿 FastLeafDecay (Folia Edition)
 A high-performance, Folia-optimized plugin that accelerates natural leaf decay when tree logs are broken, complete with particle and sound effects for enhanced immersion. Designed for large-scale SMP servers where visual polish and performance matter.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/TheGlobeMC/FastLeaftDecay/blob/master/LICENSE) file for details.
 
 ## 🔧 Features
 - ⚡ **Fast and Lightweight:** Decays nearby leaf blocks after a tree log is broken with zero TPS impact.
