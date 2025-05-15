@@ -1,9 +1,0 @@
-name: FastLeafDecay
-version: '1'
-main: net.globemc.multicody10.fastLeafDecay.Main
-api-version: '1.21'
-folia-supported: true
-prefix: FastLeafDecay
-authors: [ Multicody10 ]
-description: Accelerates leaf decay
-website: https://www.globemc.net
